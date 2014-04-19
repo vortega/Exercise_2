@@ -9,8 +9,33 @@
     tools:context="com.vortega.exercise_2.app.MainActivity">
 
     <TextView
-        android:text="@string/hello_world"
+        android:text="@string/search_text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="126dp"
+        android:id="@+id/textView" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="49dp"
+        android:maxLines="1"
+        android:minLines="1"
+        android:maxWidth="100dp"
+        android:minWidth="100dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/search_btn_text"
+        android:id="@+id/button"
+        android:layout_below="@+id/editText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="39dp" />
 
 </RelativeLayout>
