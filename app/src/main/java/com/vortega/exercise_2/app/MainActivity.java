@@ -1,5 +1,6 @@
 package com.vortega.exercise_2.app;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,10 +20,15 @@ public class MainActivity extends ActionBarActivity {
 
         searchBtn = (Button) findViewById( R.id.button );
 
+        context = this;
+
         searchBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent i= new Intent(context, MLService.class);
+                i.putExtra("Q", "");
 
+                context.bindService(i);
             }
         });
 
