@@ -66,7 +66,7 @@ public class MLService extends Service {
                 ItemDto item = new ItemDto(
                         itemResult.getString("id"),
                         itemResult.getString("title"),
-                        new BigDecimal( itemResult.getDouble("price") ),
+                        new BigDecimal( String.valueOf( itemResult.getDouble("price") ) ),
                         itemResult.getString("thumbnail")
                 );
                 items.add( item );

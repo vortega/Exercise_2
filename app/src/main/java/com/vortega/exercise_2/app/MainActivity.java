@@ -14,10 +14,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -59,13 +57,15 @@ public class MainActivity extends ActionBarActivity {
         searchBtn = (Button) findViewById( R.id.button );
         editText  = (EditText) findViewById( R.id.editText );
 
-
         searchBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
                     items = mlService.getSearch( editText.getText().toString() );
-                    Log.e("SALIDA:", items.toString());
+                    Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
+                    intent.putExtra("items", (Serializable) items);;
+
+                    startActivity(intent);
                 } catch (Exception e ){
                     Log.e("UI", "Search", e);
                 }

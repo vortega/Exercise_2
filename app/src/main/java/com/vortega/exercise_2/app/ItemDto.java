@@ -1,15 +1,16 @@
 package com.vortega.exercise_2.app;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
  * Created by vortega on 26/04/14.
  */
-public class ItemDto {
-    String id;
-    String title;
-    BigDecimal price;
-    String thumbnail;
+public class ItemDto implements Serializable {
+    private String id;
+    private String title;
+    private BigDecimal price;
+    private String thumbnail;
 
     public ItemDto( String id, String title, BigDecimal price, String thumbnail ){
         this.id = id;
