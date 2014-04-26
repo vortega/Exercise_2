@@ -42,7 +42,7 @@ public class MLService extends Service {
 
     public List<ItemDto> getSearch(String itemStr) {
         HttpClient client = new DefaultHttpClient();
-        String searchUrl = "https://api.mercadolibre.com/sites/MLA/search?limit=2&offset=0";
+        String searchUrl = "https://api.mercadolibre.com/sites/MLA/search?limit=100&offset=0";
         try {
             searchUrl += "&q=" + URLEncoder.encode(itemStr, "UTF-8");
         } catch (Exception e) {
@@ -66,7 +66,7 @@ public class MLService extends Service {
                 ItemDto item = new ItemDto(
                         itemResult.getString("id"),
                         itemResult.getString("title"),
-                        new BigDecimal( String.valueOf( itemResult.getDouble("price") ) ),
+                        new BigDecimal( String.valueOf(itemResult.getDouble("price")) ),
                         itemResult.getString("thumbnail")
                 );
                 items.add( item );
@@ -80,3 +80,4 @@ public class MLService extends Service {
         return items;
     }
 }
+  

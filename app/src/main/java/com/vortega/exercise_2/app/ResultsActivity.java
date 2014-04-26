@@ -11,12 +11,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 public class ResultsActivity extends ActionBarActivity {
 
-    List<ItemDto> items;
     ListView itemList;
+    TextView title;
+
+    List<ItemDto> items;
 
     public class ItemDtoAdapter extends ArrayAdapter<ItemDto> {
         public ItemDtoAdapter(){
@@ -43,7 +47,6 @@ public class ResultsActivity extends ActionBarActivity {
     private void populateItems(){
         ArrayAdapter<ItemDto> adapter = new ItemDtoAdapter();
         itemList.setAdapter( adapter );
-
     }
 
     @Override
@@ -52,8 +55,10 @@ public class ResultsActivity extends ActionBarActivity {
         setContentView(R.layout.activity_results);
 
         itemList = (ListView) findViewById(R.id.listView);
+        title = (TextView) findViewById(R.id.textView);
 
         items = (List<ItemDto>) this.getIntent().getSerializableExtra("items");
+        title.setText( "Resultados: "+ String.valueOf(items.size()) );
 
         populateItems();
 

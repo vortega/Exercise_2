@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import java.util.List;
 import java.io.Serializable;
@@ -22,6 +23,8 @@ public class MainActivity extends ActionBarActivity {
 
     Button searchBtn;
     EditText editText;
+    ProgressBar loader;
+
     MLService mlService;
     boolean mlBound = false;
     List<ItemDto> items;
@@ -56,18 +59,35 @@ public class MainActivity extends ActionBarActivity {
 
         searchBtn = (Button) findViewById( R.id.button );
         editText  = (EditText) findViewById( R.id.editText );
+        loader    = (ProgressBar) findViewById( R.id.progressBar );
 
         searchBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                editText.setVisibility(View.INVISIBLE);
+                loader.setVisibility(View.VISIBLE);
+                searchBtn.setEnabled(false);
+
                 try {
-                    items = mlService.getSearch( editText.getText().toString() );
+                    Thread t = new Thread(){
+                        public void run(){
+                            items = mlService.getSearch( editText.getText().toString() );
+                        }
+                    };
+
+                    t.start();
+                    t.join();
+
                     Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
                     intent.putExtra("items", (Serializable) items);;
 
                     startActivity(intent);
                 } catch (Exception e ){
                     Log.e("UI", "Search", e);
+                } finally {
+                    editText.setVisibility(View.VISIBLE);
+                    loader.setVisibility(View.INVISIBLE);
+                    searchBtn.setEnabled(true);
                 }
             }
         });
