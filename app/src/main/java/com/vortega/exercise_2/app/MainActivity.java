@@ -1,38 +1,78 @@
 package com.vortega.exercise_2.app;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import org.json.JSONObject;
+
 
 public class MainActivity extends ActionBarActivity {
 
     Button searchBtn;
+    MLService mlService;
+    boolean mlBound = false;
+
+
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mlConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            MLService.MLBinder binder = (MLService.MLBinder) service;
+            mlService = binder.getService();
+            mlBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mlBound = false;
+        }
+    };
+
+    /*** LIFECYCLE ***/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent intent = new Intent(this, MLService.class);
+        bindService(intent, mlConnection, Context.BIND_AUTO_CREATE);
+
         searchBtn = (Button) findViewById( R.id.button );
 
-        context = this;
 
         searchBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i= new Intent(context, MLService.class);
-                i.putExtra("Q", "");
-
-                context.bindService(i);
+                JSONObject result = mlService.getSearch("iphone");
+                Log.e("RESULTADOS", result.toString());
             }
         });
-
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Unbind from the service
+        if (mlBound) {
+            unbindService(mlConnection);
+            mlBound = false;
+        }
+    }
+
 
 
     @Override
@@ -54,5 +94,6 @@ public class MainActivity extends ActionBarActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 }
