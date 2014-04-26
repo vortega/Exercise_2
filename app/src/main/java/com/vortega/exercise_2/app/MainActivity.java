@@ -12,16 +12,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
 
     Button searchBtn;
+    EditText editText;
     MLService mlService;
     boolean mlBound = false;
-
+    List<ItemDto> items;
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mlConnection = new ServiceConnection() {
@@ -52,13 +57,18 @@ public class MainActivity extends ActionBarActivity {
         bindService(intent, mlConnection, Context.BIND_AUTO_CREATE);
 
         searchBtn = (Button) findViewById( R.id.button );
+        editText  = (EditText) findViewById( R.id.editText );
 
 
         searchBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                JSONObject result = mlService.getSearch("iphone");
-                Log.e("RESULTADOS", result.toString());
+                try {
+                    items = mlService.getSearch( editText.getText().toString() );
+                    Log.e("SALIDA:", items.toString());
+                } catch (Exception e ){
+                    Log.e("UI", "Search", e);
+                }
             }
         });
     }

@@ -12,14 +12,17 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MLService extends Service {
 
     private static final String TAG = MLService.class.getSimpleName();
-
     private final IBinder mlBinder = new MLBinder();
 
     public class MLBinder extends Binder {
@@ -37,7 +40,7 @@ public class MLService extends Service {
         return mlBinder;
     }
 
-    public JSONObject getSearch(String itemStr) {
+    public List<ItemDto> getSearch(String itemStr) {
         HttpClient client = new DefaultHttpClient();
         String searchUrl = "https://api.mercadolibre.com/sites/MLA/search?limit=2&offset=0";
         try {
@@ -50,15 +53,30 @@ public class MLService extends Service {
 
         // Get the response
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        JSONObject json = null;
+        List<ItemDto> items = new ArrayList<ItemDto>();
 
         try {
             String resp = client.execute(request, responseHandler);
-            json = new JSONObject(resp);
+            JSONObject json = new JSONObject(resp);
+            JSONArray results = json.getJSONArray("results");
+
+            for( int i = 0; i < results.length(); i++ ) {
+                JSONObject itemResult = results.getJSONObject(i);
+
+                ItemDto item = new ItemDto(
+                        itemResult.getString("id"),
+                        itemResult.getString("title"),
+                        new BigDecimal( itemResult.getDouble("price") ),
+                        itemResult.getString("thumbnail")
+                );
+                items.add( item );
+            }
+
+
         } catch (Exception e) {
             Log.e(TAG, "Problema Search", e);
         }
 
-        return json;
+        return items;
     }
 }
