@@ -1,10 +1,7 @@
 package com.vortega.exercise_2.app;
 
-import android.app.Service;
-import android.content.Intent;
-import android.net.http.AndroidHttpClient;
-import android.os.Binder;
-import android.os.IBinder;
+import android.app.Activity;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.http.client.HttpClient;
@@ -20,33 +17,27 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MLService extends Service {
+/**
+ * Created by vortega on 27/04/14.
+ */
+public class MLApiAsyncTask extends AsyncTask<String, Void, List<ItemDto>> {
 
-    private static final String TAG = MLService.class.getSimpleName();
-    private final IBinder mlBinder = new MLBinder();
+    Activity activity;
+    AsyncTaskListener callback;
 
-    public class MLBinder extends Binder {
-        MLService getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return MLService.this;
-        }
+    public MLApiAsyncTask(Activity act) {
+        this.activity = act;
+        this.callback = (AsyncTaskListener) act;
     }
 
-    public MLService() {
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mlBinder;
-    }
-
-    public List<ItemDto> getSearch(String itemStr) {
+    public List<ItemDto> doInBackground(String... itemStrs) {
+        String itemStr = itemStrs[0];
         HttpClient client = new DefaultHttpClient();
         String searchUrl = "https://api.mercadolibre.com/sites/MLA/search?limit=100&offset=0";
         try {
             searchUrl += "&q=" + URLEncoder.encode(itemStr, "UTF-8");
         } catch (Exception e) {
-            Log.e(TAG, "Problema Armando URL", e);
+            Log.e("AsyncTask", "Problema Armando URL", e);
         }
 
         HttpGet request = new HttpGet(searchUrl);
@@ -74,10 +65,14 @@ public class MLService extends Service {
 
 
         } catch (Exception e) {
-            Log.e(TAG, "Problema Search", e);
+            Log.e("AsyncTask", "Problema Search", e);
         }
 
         return items;
     }
+
+    protected void onPostExecute(List<ItemDto> items) {
+        super.onPostExecute(items);
+        callback.searchDone(items);
+    }
 }
-  

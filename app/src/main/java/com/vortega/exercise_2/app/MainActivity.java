@@ -19,33 +19,29 @@ import java.util.List;
 import java.io.Serializable;
 
 
-public class MainActivity extends ActionBarActivity {
+interface AsyncTaskListener{
+    public void searchDone(List<ItemDto> items);
+}
+
+public class MainActivity extends ActionBarActivity implements AsyncTaskListener {
 
     Button searchBtn;
     EditText editText;
     ProgressBar loader;
 
-    MLService mlService;
     boolean mlBound = false;
     List<ItemDto> items;
 
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection mlConnection = new ServiceConnection() {
+    public void searchDone(List<ItemDto> items){
+        Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
+        intent.putExtra("items", (Serializable) items);;
 
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            MLService.MLBinder binder = (MLService.MLBinder) service;
-            mlService = binder.getService();
-            mlBound = true;
-        }
+        startActivity(intent);
 
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mlBound = false;
-        }
-    };
+        editText.setVisibility(View.VISIBLE);
+        loader.setVisibility(View.INVISIBLE);
+        searchBtn.setEnabled(true);
+    }
 
     /*** LIFECYCLE ***/
 
@@ -53,9 +49,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Intent intent = new Intent(this, MLService.class);
-        bindService(intent, mlConnection, Context.BIND_AUTO_CREATE);
 
         searchBtn = (Button) findViewById( R.id.button );
         editText  = (EditText) findViewById( R.id.editText );
@@ -68,42 +61,10 @@ public class MainActivity extends ActionBarActivity {
                 loader.setVisibility(View.VISIBLE);
                 searchBtn.setEnabled(false);
 
-                try {
-                    Thread t = new Thread(){
-                        public void run(){
-                            items = mlService.getSearch( editText.getText().toString() );
-                        }
-                    };
-
-                    t.start();
-                    t.join();
-
-                    Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
-                    intent.putExtra("items", (Serializable) items);;
-
-                    startActivity(intent);
-                } catch (Exception e ){
-                    Log.e("UI", "Search", e);
-                } finally {
-                    editText.setVisibility(View.VISIBLE);
-                    loader.setVisibility(View.INVISIBLE);
-                    searchBtn.setEnabled(true);
-                }
+                new MLApiAsyncTask(MainActivity.this).execute( editText.getText().toString() );
             }
         });
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // Unbind from the service
-        if (mlBound) {
-            unbindService(mlConnection);
-            mlBound = false;
-        }
-    }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
