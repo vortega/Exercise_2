@@ -26,6 +26,7 @@ public class ResultsActivity extends ActionBarActivity {
     TextView title;
 
     List<ItemDto> items;
+    String searchStr;
 
     static class ViewHolder {
         TextView title;
@@ -80,6 +81,8 @@ public class ResultsActivity extends ActionBarActivity {
 
         items = (List<ItemDto>) this.getIntent().getSerializableExtra("items");
         title.setText( "Resultados: "+ String.valueOf(items.size()) );
+
+        searchStr = this.getIntent().getStringExtra("searchStr");
 
         itemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

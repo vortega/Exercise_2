@@ -12,11 +12,21 @@ public class ItemDto implements Serializable {
     private BigDecimal price;
     private String thumbnail;
 
+    private String picture;
+
     public ItemDto( String id, String title, BigDecimal price, String thumbnail ){
         this.id = id;
         this.title = title;
         this.price = price;
         this.thumbnail = thumbnail;
+    }
+
+    public ItemDto( String id, String title, BigDecimal price, String thumbnail, String picture ){
+        this.id = id;
+        this.title = title;
+        this.price = price;
+        this.thumbnail = thumbnail;
+        this.picture = picture;
     }
 
     public String getId() {
@@ -49,5 +59,13 @@ public class ItemDto implements Serializable {
 
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

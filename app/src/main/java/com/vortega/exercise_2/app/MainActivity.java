@@ -29,12 +29,12 @@ public class MainActivity extends ActionBarActivity implements AsyncTaskListener
     EditText editText;
     ProgressBar loader;
 
-    boolean mlBound = false;
-    List<ItemDto> items;
+    String searchStr;
 
     public void searchDone(List<ItemDto> items){
         Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
-        intent.putExtra("items", (Serializable) items);;
+        intent.putExtra("items", (Serializable) items);
+        intent.putExtra("searchStr", searchStr);
 
         startActivity(intent);
 
@@ -54,6 +54,8 @@ public class MainActivity extends ActionBarActivity implements AsyncTaskListener
         editText  = (EditText) findViewById( R.id.editText );
         loader    = (ProgressBar) findViewById( R.id.progressBar );
 
+        searchStr = "";
+
         searchBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,7 +63,9 @@ public class MainActivity extends ActionBarActivity implements AsyncTaskListener
             loader.setVisibility(View.VISIBLE);
             searchBtn.setEnabled(false);
 
-            new MLApiAsyncTask(MainActivity.this).execute( editText.getText().toString() );
+            searchStr = editText.getText().toString();
+
+            new MLApiAsyncTask(MainActivity.this).execute(searchStr);
             }
         });
     }
