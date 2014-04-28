@@ -57,11 +57,11 @@ public class MainActivity extends ActionBarActivity implements AsyncTaskListener
         searchBtn.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                editText.setVisibility(View.INVISIBLE);
-                loader.setVisibility(View.VISIBLE);
-                searchBtn.setEnabled(false);
+            editText.setVisibility(View.INVISIBLE);
+            loader.setVisibility(View.VISIBLE);
+            searchBtn.setEnabled(false);
 
-                new MLApiAsyncTask(MainActivity.this).execute( editText.getText().toString() );
+            new MLApiAsyncTask(MainActivity.this).execute( editText.getText().toString() );
             }
         });
     }
