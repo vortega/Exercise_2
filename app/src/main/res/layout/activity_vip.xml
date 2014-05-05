@@ -23,7 +23,9 @@
         android:id="@+id/imageView"
         android:minWidth="200dp"
         android:minHeight="200dp"
-        android:layout_below="@+id/title" />
+        android:layout_below="@+id/title"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true" />
 
     <TextView
         android:layout_width="wrap_content"

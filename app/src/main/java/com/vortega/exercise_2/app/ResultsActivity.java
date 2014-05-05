@@ -1,10 +1,9 @@
 package com.vortega.exercise_2.app;
 
-import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,12 +14,22 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
+import com.vortega.exercise_2.imageManagement.ImageLoader;
+import com.vortega.exercise_2.restclient.MLApiAsyncTask;
+import com.vortega.exercise_2.restclient.MlApiCallbacks;
+import com.vortega.exercise_2.restclient.MlRestClient;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class ResultsActivity extends ActionBarActivity {
+class ViewHolder {
+    TextView title;
+    TextView price;
+    ImageView thumb;
+    String thumbUrl;
+    int position;
+}
+
+public class ResultsActivity extends ActionBarActivity implements MlApiCallbacks {
 
     ListView itemList;
     TextView title;
@@ -28,12 +37,8 @@ public class ResultsActivity extends ActionBarActivity {
     List<ItemDto> items;
     String searchStr;
 
-    static class ViewHolder {
-        TextView title;
-        TextView price;
-        ImageView thumb;
-        int position;
-    }
+    String cacheDir;
+    ImageLoader imgLoader;
 
     public class ItemDtoAdapter extends ArrayAdapter<ItemDto> {
         public ItemDtoAdapter(){
@@ -43,21 +48,25 @@ public class ResultsActivity extends ActionBarActivity {
         public View getView(int position, View view, ViewGroup parent) {
             ViewHolder holder;
 
+            ItemDto currentItem = items.get(position);
+
             if (view == null) {
                 view = getLayoutInflater().inflate(R.layout.listview_item, parent, false);
                 holder = new ViewHolder();
                 holder.title = (TextView) view.findViewById(R.id.title);
                 holder.price = (TextView) view.findViewById(R.id.price);
                 holder.thumb = (ImageView) view.findViewById(R.id.imageView);
+                holder.thumbUrl = currentItem.getThumbnail();
+                holder.position = position;
                 view.setTag(holder);
             } else {
                 holder = (ViewHolder) view.getTag();
             }
 
-            ItemDto currentItem = items.get(position);
+            Context context = this.getContext();
+            int icon = context.getResources().getIdentifier("icon", "drawable", context.getPackageName());
 
-            DownloadImageTask imageLoader = new DownloadImageTask( holder.thumb );
-            imageLoader.execute( currentItem.getThumbnail() );
+            imgLoader.displayImage( currentItem.getThumbnail(), icon, holder.thumb);
 
             holder.title.setText( currentItem.getTitle() );
             holder.price.setText( currentItem.getPrice().toString() );
@@ -70,6 +79,17 @@ public class ResultsActivity extends ActionBarActivity {
         ArrayAdapter<ItemDto> adapter = new ItemDtoAdapter();
         itemList.setAdapter( adapter );
     }
+
+
+    public void searchItemsDone(List<ItemDto> items){}
+
+    public void getItemDone( ItemDto item ) {
+        Intent intent = new Intent(ResultsActivity.this, VipActivity.class);
+        intent.putExtra("item", item );
+
+        startActivity(intent);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,15 +104,18 @@ public class ResultsActivity extends ActionBarActivity {
 
         searchStr = this.getIntent().getStringExtra("searchStr");
 
+        final MlRestClient mlClient = new MlRestClient(this);
+
         itemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(ResultsActivity.this, VipActivity.class);
-                intent.putExtra("item", items.get(i) );
-
-                startActivity(intent);
+            mlClient.getItem( items.get(i).getId() );
             }
         });
+
+        cacheDir = this.getCacheDir().toString();
+
+        imgLoader = new ImageLoader(getApplicationContext());
 
         populateItems();
 
@@ -117,6 +140,10 @@ public class ResultsActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void searchDone(List<ItemDto> items){
+
     }
 
 }

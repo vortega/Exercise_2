@@ -1,11 +1,14 @@
 package com.vortega.exercise_2.app;
 
+import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.vortega.exercise_2.imageManagement.ImageLoader;
 
 import java.util.List;
 
@@ -16,6 +19,7 @@ public class VipActivity extends ActionBarActivity {
     TextView price;
 
     ItemDto item;
+    String cacheDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +32,13 @@ public class VipActivity extends ActionBarActivity {
         price = (TextView) findViewById(R.id.price);
         picture = (ImageView) findViewById(R.id.imageView);
 
-        DownloadImageTask imageLoader = new DownloadImageTask( picture );
-        imageLoader.execute( item.getThumbnail() );
+        cacheDir = this.getCacheDir().toString();
+
+        Context context = getApplicationContext();
+        int icon = context.getResources().getIdentifier("icon", "drawable", context.getPackageName());
+
+        ImageLoader imgLoader = new ImageLoader(context);
+        imgLoader.displayImage( item.getPicture(), icon, picture);
 
         title.setText( item.getTitle() );
         price.setText( item.getPrice().toString() );

@@ -1,13 +1,8 @@
 package com.vortega.exercise_2.app;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,15 +10,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.vortega.exercise_2.restclient.MlRestClient;
+import com.vortega.exercise_2.restclient.MlApiCallbacks;
+
 import java.util.List;
 import java.io.Serializable;
 
-
-interface AsyncTaskListener{
-    public void searchDone(List<ItemDto> items);
-}
-
-public class MainActivity extends ActionBarActivity implements AsyncTaskListener {
+public class MainActivity extends ActionBarActivity implements MlApiCallbacks {
 
     Button searchBtn;
     EditText editText;
@@ -31,7 +24,7 @@ public class MainActivity extends ActionBarActivity implements AsyncTaskListener
 
     String searchStr;
 
-    public void searchDone(List<ItemDto> items){
+    public void searchItemsDone(List<ItemDto> items){
         Intent intent = new Intent(MainActivity.this, ResultsActivity.class);
         intent.putExtra("items", (Serializable) items);
         intent.putExtra("searchStr", searchStr);
@@ -42,6 +35,8 @@ public class MainActivity extends ActionBarActivity implements AsyncTaskListener
         loader.setVisibility(View.INVISIBLE);
         searchBtn.setEnabled(true);
     }
+
+    public void getItemDone( ItemDto item ) {}
 
     /*** LIFECYCLE ***/
 
@@ -55,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements AsyncTaskListener
         loader    = (ProgressBar) findViewById( R.id.progressBar );
 
         searchStr = "";
+        final MlRestClient mlClient = new MlRestClient(this);
 
         searchBtn.setOnClickListener( new View.OnClickListener() {
             @Override
@@ -65,7 +61,7 @@ public class MainActivity extends ActionBarActivity implements AsyncTaskListener
 
             searchStr = editText.getText().toString();
 
-            new MLApiAsyncTask(MainActivity.this).execute(searchStr);
+            mlClient.search(searchStr);
             }
         });
     }
